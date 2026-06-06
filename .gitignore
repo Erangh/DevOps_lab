@@ -1,0 +1,7 @@
+cat << 'EOF' > .gitignore
+*.box
+*.vmdk
+*.ovf
+.vagrant/
+output-custom-ubuntu/
+EOF

@@ -1,0 +1,21 @@
+Vagrant.configure("2") do |config|
+  # 1. Target your pre-baked custom golden image instead of generic "bento/ubuntu-2204"
+  config.vm.box = "bento/ubuntu-2204"
+  config.vm.hostname = "Server"
+
+  # 2. VirtualBox hardware configuration block
+  config.vm.provider "virtualbox" do |my_vm|
+    my_vm.name = "Server"
+    my_vm.memory = 4096
+    my_vm.cpus = 2
+  end
+
+  # =========================================================================
+  # DEVOPS PROVISIONING LINE (COMMENTED OUT)
+  # =========================================================================
+  # Since your Docker engine, registry mirrors, and terminal configurations 
+  # are already baked into the "eran/ubuntu-2204-docker" box, we comment this 
+  # out. Uncomment these lines if you ever switch back to a blank base image.
+  # =========================================================================
+  config.vm.provision "shell", path: "bootstrap.sh"
+end
