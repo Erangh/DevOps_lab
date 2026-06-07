@@ -2,6 +2,12 @@ Vagrant.configure("2") do |config|
   # 1. Target your pre-baked custom golden image instead of generic "bento/ubuntu-2204"
   config.vm.box = "bento/ubuntu-2204"
   config.vm.hostname = "Server"
+  # =========================================================================
+  # BRIDGED NETWORKING LAYER
+  # =========================================================================
+  # This tells Vagrant to request a dedicated IP directly from your router's DHCP
+  # =========================================================================
+  config.vm.network "public_network"
 
   # 2. VirtualBox hardware configuration block
   config.vm.provider "virtualbox" do |my_vm|
