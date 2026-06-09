@@ -1,0 +1,11 @@
+packages:
+    - vim
+    - wget
+    - git
+    - fish
+    - net-tools
+    - ncurses-bin
+# site name variables
+sub: web
+domain: eran
+tld: ir

@@ -1,0 +1,25 @@
+---
+#- name: "apt-get update"
+#  apt:
+#    update_cache: yes
+#    cache_valid_time: 3600
+
+- name: Install tools
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ packages }}"
+  tags: install_packages
+
+- name: Set Fish as the default shell for the vagrant user
+  ansible.builtin.user:
+    name: vagrant
+    shell: /usr/bin/fish
+
+- name: Install and configure Nginx
+  ansible.builtin.include_tasks: nginx.yml
+
+
+- name: Configure Ghostty support
+  ansible.builtin.include_tasks: ghostty.yml
+

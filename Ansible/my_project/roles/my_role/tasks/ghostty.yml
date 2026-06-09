@@ -1,0 +1,11 @@
+- name: Copy Ghostty terminfo source
+  ansible.builtin.copy:
+    src: xterm-ghostty.terminfo
+    dest: /tmp/xterm-ghostty.terminfo
+    mode: '0644'
+  register: ghostty_terminfo
+
+- name: Install Ghostty terminfo
+  ansible.builtin.command:
+    cmd: tic -x /tmp/xterm-ghostty.terminfo
+  when: ghostty_terminfo.changed
