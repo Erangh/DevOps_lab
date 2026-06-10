@@ -3,5 +3,6 @@ cat << 'EOF' > .gitignore
 *.vmdk
 *.ovf
 .vagrant/
+*-VBoxHeadless-*.log
 output-custom-ubuntu/
 EOF
