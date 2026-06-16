@@ -62,8 +62,13 @@ echo "========================================="
 mkdir -p /etc/docker
 cat << 'EOF' > /etc/docker/daemon.json
 {
-  "insecure-registries" : ["https://docker.arvancloud.ir"],
-  "registry-mirrors": ["https://docker.arvancloud.ir"]
+  "insecure-registries": [
+    "docker.arvancloud.ir"
+  ],
+  "registry-mirrors": [
+    "https://docker.arvancloud.ir",
+    "https://docker.dockerme.ir"
+  ]
 }
 EOF
 
@@ -77,14 +82,14 @@ systemctl restart docker
 # 12. Give the 'vagrant' user permission to run Docker commands natively
 usermod -aG docker vagrant
 
-echo "========================================="
-echo "     SETTING UP GHOSTTY TERMINFO        "
-echo "========================================="
-
-# 13. Fix 'xterm-ghostty' using the updated repository URL route
-mkdir -p /home/vagrant/.terminfo/x/
-curl -fsSL "https://raw.githubusercontent.com/ghostty-org/ghostty/main/terminfo/xterm-ghostty" -o /home/vagrant/.terminfo/x/xterm-ghostty
-chown -R vagrant:vagrant /home/vagrant/.terminfo
+#echo "========================================="
+#echo "     SETTING UP GHOSTTY TERMINFO        "
+#echo "========================================="
+#
+## 13. Fix 'xterm-ghostty' using the updated repository URL route
+#mkdir -p /home/vagrant/.terminfo/x/
+#curl -fsSL "https://raw.githubusercontent.com/ghostty-org/ghostty/main/terminfo/xterm-ghostty" -o /home/vagrant/.terminfo/x/xterm-ghostty
+#chown -R vagrant:vagrant /home/vagrant/.terminfo
 
 #echo "========================================="
 #echo "     CLEANUP: REVERTING REPOSITORIES     "
