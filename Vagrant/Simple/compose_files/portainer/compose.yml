@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    hostname: portainer
+    restart: always
+    expose:
+      - "9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/portainer_data:/data
+    networks:
+      - internal_routing
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro  
+    networks:
+      - internal_routing
+      - web_net
+
+
+networks:
+  web_net:
+   external: true
+  internal_routing:
+   name: internal_routing
+    
