@@ -1,0 +1,15 @@
+
+- name: Install tools
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ packages }}" # Note: 'loop' is the modern replacement for 'with_items'
+  tags: install_packages
+
+- name: Set Fish as the default shell for the target user
+  ansible.builtin.user:
+    name: "{{ target_user }}" # Replaced hardcoded 'vagrant'
+    shell: /usr/bin/fish
+
+- name: Include Docker preparation tasks
+  ansible.builtin.import_tasks: preparing.yml

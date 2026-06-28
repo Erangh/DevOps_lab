@@ -6,7 +6,3 @@ packages:
     - net-tools
     - ncurses-bin
     - tree
-# site name variables
-sub: web
-domain: eran
-tld: ir

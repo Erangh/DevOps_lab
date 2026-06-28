@@ -1,0 +1,97 @@
+---
+- name: Backup original apt sources.list
+  ansible.builtin.copy:
+    src: /etc/apt/sources.list
+    dest: /etc/apt/sources.list.backup
+    remote_src: yes
+    force: no
+
+- name: Configure Yandex Local OS Mirror for Ubuntu
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list
+    content: |
+      # Ubuntu {{ ansible_distribution_version }} {{ ansible_distribution_release | capitalize }} (Yandex Mirror)
+      deb http://mirror.yandex.ru/ubuntu/ {{ ansible_distribution_release }} main restricted universe multiverse
+      deb http://mirror.yandex.ru/ubuntu/ {{ ansible_distribution_release }}-updates main restricted universe multiverse
+      deb http://mirror.yandex.ru/ubuntu/ {{ ansible_distribution_release }}-backports main restricted universe multiverse
+      deb http://mirror.yandex.ru/ubuntu/ {{ ansible_distribution_release }}-security main restricted universe multiverse
+    mode: '0644'
+
+- name: Create keyrings directory for APT
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Abrha Docker GPG key
+  ansible.builtin.get_url:
+    url: https://repo.abrha.net/docker/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+
+- name: Determine dpkg architecture
+  ansible.builtin.command: dpkg --print-architecture
+  register: dpkg_arch
+  changed_when: false
+
+- name: Configure Abrha Docker apt sources
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/docker.sources
+    content: |
+      Types: deb
+      URIs: https://repo.abrha.net/docker/ubuntu
+      Suites: {{ ansible_distribution_release }}
+      Components: stable
+      Architectures: {{ dpkg_arch.stdout }}
+      Signed-By: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+
+- name: Install Docker Engine and related packages
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: yes
+
+- name: Ensure Docker config directory exists
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+
+- name: Configure Docker registry mirrors and insecure registries
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "insecure-registries": [
+          "docker.arvancloud.ir"
+        ],
+        "registry-mirrors": [
+          "https://docker.arvancloud.ir",
+          "https://docker.dockerme.ir"
+        ]
+      }
+    mode: '0644'
+  notify: Restart Docker
+
+- name: Clear any residual Docker authentication data
+  ansible.builtin.command: docker logout
+  ignore_errors: yes
+  changed_when: false
+
+- name: Ensure Docker service is enabled and started
+  ansible.builtin.systemd:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: Add target user to the docker group
+  ansible.builtin.user:
+    name: "{{ target_user }}"
+    groups: docker
+    append: yes

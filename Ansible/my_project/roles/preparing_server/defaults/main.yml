@@ -1,0 +1,12 @@
+target_user: "server"
+packages:
+    - vim
+    - wget
+    - git
+    - fish
+    - net-tools
+    - ncurses-bin
+    - tree
+
+
+

@@ -1,8 +1,6 @@
----
-- hosts: server
-  become: true
-  gather_facts: yes
-  name: setup nginx web server
+
+- name: Provision System and Install Docker
+  hosts: servers
+  become: yes
   roles:
-  # install and configure nginx service
-    - { role: my_role, become: True, tags: setup_nginx }
+    - preparing_server
