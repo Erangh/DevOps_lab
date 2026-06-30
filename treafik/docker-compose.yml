@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  traefik:
+    image: "traefik:v3.7"
+    container_name: "traefik"
+    hostname: "traefik"
+    command:
+      - "--log.level=ERROR"
+      - "--log.filepath=/log-file.log"
+      - "--log.format=json"
+      - "--accesslog=true"
+      - "--accesslog.fields.names.StartUTC=drop"
+      - "--accesslog.bufferingsize=250"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.network=web_net"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--api.dashboard=true" 
+    ports:
+      - "80:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web_net"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.local`)"
+      - "traefik.http.routers.dashboard.entrypoints=web"
+      - "traefik.http.routers.dashboard.service=api@internal"
+    restart: unless-stopped
+
+networks:
+  web_net:
+    name: web_net
+    external: true

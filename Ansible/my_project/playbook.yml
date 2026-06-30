@@ -2,5 +2,14 @@
 - name: Provision System and Install Docker
   hosts: servers
   become: yes
+  tags: setup_docker
   roles:
     - preparing_server
+
+- name: Provision Home Server and Apply Hardening
+  hosts: servers
+  become: yes
+  tags: harden_server
+  roles:
+    - os_hardening
+    - ssh_hardening
