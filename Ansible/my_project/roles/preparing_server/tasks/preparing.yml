@@ -6,16 +6,17 @@
     remote_src: yes
     force: no
 
-- name: Configure Yandex Local OS Mirror for Ubuntu
-  ansible.builtin.copy:
-    dest: /etc/apt/sources.list
-    content: |
-      # Ubuntu {{ ansible_distribution_version }} {{ ansible_distribution_release | capitalize }} (Yandex Mirror)
-      deb http://mirror.yandex.ru/ubuntu/ {{ ansible_distribution_release }} main restricted universe multiverse
-      deb http://mirror.yandex.ru/ubuntu/ {{ ansible_distribution_release }}-updates main restricted universe multiverse
-      deb http://mirror.yandex.ru/ubuntu/ {{ ansible_distribution_release }}-backports main restricted universe multiverse
-      deb http://mirror.yandex.ru/ubuntu/ {{ ansible_distribution_release }}-security main restricted universe multiverse
-    mode: '0644'
+- name: Replace default Ubuntu archive with Yandex mirror (Ubuntu 24.04+)
+  ansible.builtin.replace:
+    path: /etc/apt/sources.list.d/ubuntu.sources
+    regexp: 'http://archive\.ubuntu\.com/ubuntu/?'
+    replace: 'http://mirror.yandex.ru/ubuntu/'
+    backup: yes
+    
+- name: Ensure legacy sources.list is removed to prevent APT duplication warnings
+  ansible.builtin.file:
+    path: /etc/apt/sources.list
+    state: absent
 
 - name: Create keyrings directory for APT
   ansible.builtin.file:
