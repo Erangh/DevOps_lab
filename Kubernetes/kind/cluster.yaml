@@ -1,0 +1,18 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    apiVersion: kubeadm.k8s.io/v1beta3
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        # Note: Ensure you mount policy files if you intend to use auditing fully!
+        authorization-mode: "Node,RBAC"
+    scheduler:
+      extraArgs:
+        bind-address: "0.0.0.0"
+    controllerManager:
+      extraArgs:
+        node-cidr-mask-size: "24"
