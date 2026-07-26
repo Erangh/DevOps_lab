@@ -2,6 +2,7 @@ cat << 'EOF' > .gitignore
 *.box
 *.vmdk
 *.ovf
+.idea/
 .vagrant/
 *-VBoxHeadless-*.log
 *-VirtualBoxVM-*.log
