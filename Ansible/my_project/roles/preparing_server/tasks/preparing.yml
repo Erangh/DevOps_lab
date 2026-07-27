@@ -82,7 +82,7 @@
 
 - name: Clear any residual Docker authentication data
   ansible.builtin.command: docker logout
-  ignore_errors: yes
+  ignore_errors: true
   changed_when: false
 
 - name: Ensure Docker service is enabled and started
@@ -96,3 +96,16 @@
     name: "{{ target_user }}"
     groups: docker
     append: yes
+
+- name: Set logind handle lid switch settings to ignore
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/logind.conf
+    regexp: "^#?{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    state: present
+    backup: yes
+  loop:
+    - { key: 'HandleLidSwitch', value: 'ignore' }
+    - { key: 'HandleLidSwitchExternalPower', value: 'ignore' }
+    - { key: 'HandleLidSwitchDocked', value: 'ignore' }
+  notify: Restart logind

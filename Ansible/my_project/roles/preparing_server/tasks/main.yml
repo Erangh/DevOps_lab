@@ -11,5 +11,5 @@
     name: "{{ target_user }}" # Replaced hardcoded 'vagrant'
     shell: /usr/bin/fish
 
-- name: Include Docker preparation tasks
+- name: Include server preparing tasks
   ansible.builtin.import_tasks: preparing.yml

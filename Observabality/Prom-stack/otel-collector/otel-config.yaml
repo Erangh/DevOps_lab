@@ -1,0 +1,77 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# OpenTelemetry Collector (local dev)
+# Receives traces/metrics/logs via OTLP, Zipkin, Jaeger;
+# batched, sent to Tempo (traces), Loki (logs), Prometheus remote-write (metrics).
+# ─────────────────────────────────────────────────────────────────────────────
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+  zipkin:
+    endpoint: 0.0.0.0:9411
+  jaeger:
+    protocols:
+      thrift_http:
+        endpoint: 0.0.0.0:14268
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  # Add common resource attributes for local dev
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: localdev
+        action: upsert
+
+exporters:
+  # Traces → Tempo (OTLP gRPC)
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  # Metrics → Prometheus remote write
+  prometheusremotewrite:
+    endpoint: "http://prometheus:9090/api/v1/write"
+
+  # Prometheus scrape of collector's own metrics (optional)
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+
+  # Logs → Loki
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
+
+  # Debug: print traces to stdout (useful when learning — comment out for noise)
+  debug:
+    verbosity: basic
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  pprof:
+    endpoint: :1888
+  zpages:
+    endpoint: :55679
+
+service:
+  extensions: [health_check, pprof, zpages]
+  pipelines:
+    traces:
+      receivers: [otlp, zipkin, jaeger]
+      processors: [resource, batch]
+      exporters: [otlp/tempo, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [prometheusremotewrite, prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [loki]
