@@ -1,0 +1,30 @@
+- name: Ensure /etc/docker directory exists
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Read existing daemon.json (if present)
+  ansible.builtin.slurp:
+    src: /etc/docker/daemon.json
+  register: existing_daemon_json
+  ignore_errors: true
+
+- name: Parse existing daemon.json content
+  ansible.builtin.set_fact:
+    current_daemon_config: "{{ (existing_daemon_json.content | default('') | b64decode | from_json) if (existing_daemon_json.content is defined) else {} }}"
+
+- name: Merge proxy configurations into daemon.json
+  ansible.builtin.set_fact:
+    updated_daemon_config: "{{ current_daemon_config | combine({'proxies': {'http-proxy': docker_http_proxy, 'https-proxy': docker_https_proxy, 'no-proxy': docker_no_proxy}}, recursive=True) }}"
+
+- name: Write updated configuration to /etc/docker/daemon.json
+  ansible.builtin.copy:
+    content: "{{ updated_daemon_config | to_nice_json }}"
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload systemd and restart Docker

@@ -1,0 +1,3 @@
+docker_http_proxy: "http://192.168.1.205:808"
+docker_https_proxy: "http://192.168.1.205:808"
+docker_no_proxy: "localhost,127.0.0.1,.local,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,docker.arvancloud.ir,docker.dockerme.ir,repo.abrha.net"
