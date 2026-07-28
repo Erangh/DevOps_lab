@@ -44,5 +44,5 @@ metrics_generator:
   storage:
     path: /tmp/tempo/generator/wal
 
-analytics:
-  reporting_enabled: false
+#analytics:
+#  reporting_enabled: false
